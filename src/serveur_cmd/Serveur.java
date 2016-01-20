@@ -1,7 +1,11 @@
+package serveur_cmd;
+import java.awt.Color;
 import java.awt.List;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -76,5 +80,55 @@ public class Serveur{
 			e.printStackTrace();
 		}
 	}
+
+	public void echo(int i, Socket s) {
+		BufferedReader din;
+		String rslt = "";
+		char[] buffer = new char[i];
+		int octetlu=0;
+		while(octetlu<i){
+			try {
+				din = new BufferedReader(new InputStreamReader(s.getInputStream()));
+				octetlu += din.read(buffer);
+				rslt += new String(buffer);
+				System.out.println(octetlu);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		sendToAll(rslt, s);
+		sendAck(s,""+i);
+	}
+
+
+	public void ack(int i, Socket s) {
+		int octlu=0;
+		BufferedReader din;
+		String rslt = "";
+		while(octlu<i)
+			try {
+				din = new BufferedReader(new InputStreamReader(s.getInputStream()));
+				rslt+=(char) din.read();
+				octlu++;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		sendAck(s,""+i);
+	}
+
 	
+	private void sendAck(Socket s2,String m) {
+		PrintWriter dout;
+		try {
+			dout = new PrintWriter(s.getOutputStream());
+			dout.println("[OK "+m+" ]");
+			dout.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 }
