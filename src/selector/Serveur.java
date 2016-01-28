@@ -1,6 +1,10 @@
 package selector;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
@@ -50,7 +54,7 @@ public class Serveur{
 						selectedKeys.iterator();
 				while (keyIterator.hasNext()) {
 					SelectionKey selectionKey = keyIterator.next();
-
+					keyIterator.remove();
 					/*evennement de connexion*/
 					if(selectionKey.isAcceptable())
 						connectEvent(selectionKey);
@@ -60,24 +64,61 @@ public class Serveur{
 					/* evennement d'ecriture */
 					else if(selectionKey.isWritable())
 						writeEvent(selectionKey);
+					else
+						return;
 					
-					keyIterator.remove();
 				}
 			}
 
 		}
-
-
 	}
+	
+	
+	private void writeToAll(SelectionKey sel ,String rslt) {
+		SocketChannel c = (SocketChannel) sel.channel();
+		for(SocketChannel sock : listecli){
+			if(sock!=c){
+				try {
+					sock.register(select, SelectionKey.OP_WRITE, rslt);
+				} catch (ClosedChannelException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	private void echo(SelectionKey s2, int i) throws IOException{
+		SocketChannel c = (SocketChannel) s2.channel();
+		ByteBuffer buffer = ByteBuffer.allocate(i);
+		char car;
+		String rslt="";
+		System.out.println("*******echo********");
+		while (rslt.length()<i) {
+			while (c.read(buffer) > 0) {
+			    buffer.flip();
+			    while (buffer.hasRemaining()) {
+			    	if( (car=(char) buffer.get())!='\n' )
+			    		rslt += car;
+			    }
+			    buffer.clear();
+			}
+		}
+		System.out.println("******finecho******");
+		writeToAll(s2, rslt);
+	}
+
+
+	
 
 	private void writeEvent(SelectionKey s) {
 		SocketChannel c = (SocketChannel) s.channel();
 		String r = (String) s.attachment();
 		ByteBuffer buffer = ByteBuffer.wrap(r.getBytes());
 		try {
-			buffer.clear();
 			c.write(buffer);
-			c.close();
+			buffer.clear();
+			s.cancel();
 			System.out.println("Ecriture : "+r);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -86,7 +127,7 @@ public class Serveur{
 
 	}
 
-	private void readEvent(SelectionKey s) {
+	private void readEvent(SelectionKey s) throws NumberFormatException, IOException {
 		SocketChannel c = (SocketChannel) s.channel();
 		String rslt = "";
 		try {
@@ -104,22 +145,18 @@ public class Serveur{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		finally{
-			writeToAll(s,rslt);
+		String tab[] = rslt.split(" ");
+		if(tab[0].equals("/echo")&&tab.length==2){
+			echo(s,Integer.parseInt(tab[1].substring(0,tab[1].length()-2)));
 		}
+		else if(tab[0].equals("/ack")&&tab.length==2){
+			
+		}
+		else
+			writeToAll(s, rslt);
+
 	}
 
-	private void writeToAll(SelectionKey sel ,String rslt) {
-		//SocketChannel c = (SocketChannel) sel.channel();
-		for(SocketChannel s : listecli)
-			//if(s!=c)
-				try {
-					s.register(select, SelectionKey.OP_WRITE, rslt);
-				} catch (ClosedChannelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	}
 
 	private void connectEvent(SelectionKey s) {
 		ServerSocketChannel ssc = (ServerSocketChannel) s.channel();

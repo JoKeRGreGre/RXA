@@ -21,7 +21,7 @@ public class ServeurThread extends Thread {
 		try {
 			BufferedReader din = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String mess;
-			while(true){
+			while(!socket.isClosed()){
 				mess = din.readLine();
 				System.out.println("Envoi message de "+socket+" : "+mess);
 				analyse(mess);		
@@ -36,15 +36,19 @@ public class ServeurThread extends Thread {
 	}
 
 	private void analyse(String mess) {
-		String[] buffer = mess.split(" ");		
+		if(mess==null)
+			return;
+		String[] buffer = mess.split(" ");
 		if(mess.equals("quit"))
 			serveur.ferme(socket);
-		else if(buffer[0].equals("/echo"))
+		else if(buffer[0].equals("/echo")&&buffer.length==2)
 			serveur.echo(Integer.parseInt(buffer[1]),socket);
-		else if(buffer[0].equals("/ack"))
+		else if(buffer[0].equals("/ack")&&buffer.length==2)
 			serveur.ack(Integer.parseInt(buffer[1]),socket);
+		else if(buffer[0].equals("/compute")&&buffer.length==4)
+			serveur.compute(Integer.parseInt(buffer[1]),buffer[2],Integer.parseInt(buffer[3]),socket);
 		else
-			serveur.sendToAll(mess,socket);	
+			serveur.sendToAll(mess,socket);
 	}
 	
 }
