@@ -93,19 +93,18 @@ public class Serveur {
 		int octlu = 0;
 		BufferedReader din;
 		String rslt = "";
-		System.out.println("****ECHO*****");
 		while (octlu < i){
 			try {
 				din = new BufferedReader(new InputStreamReader(
 						s.getInputStream()));
 				rslt+= (char) din.read();
+				octlu++;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		System.out.println(rslt);
-		System.out.println("****ECHOFIN*****");
 		sendToAll(rslt);
 		sendAck(s, "" + i);
 	}

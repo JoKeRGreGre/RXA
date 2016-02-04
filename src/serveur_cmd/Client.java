@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class Client {
 
@@ -16,7 +18,7 @@ public class Client {
 	
 	public Client(InetAddress inetAddress , int p) {
 		try {
-			this.nbOct = 10;
+			this.nbOct = 1000000;
 			this.s= new Socket(inetAddress,p);
 			ops = s.getOutputStream();
 			ips = s.getInputStream();
@@ -40,28 +42,9 @@ public class Client {
 			}
 	}
 	
-	private void sendEcho() {
-		try {
-			ops.write(  ("/echo "+nbOct+"\n").getBytes());
-			ops.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-	}
 	private void quiter() {
 		try {
 			ops.write("quit\n".getBytes());
-			ops.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private void compute() {
-		try {
-			ops.write("/compute 5 * 9\n".getBytes());
 			ops.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -72,9 +55,25 @@ public class Client {
 	public static void main(String[] args) {
 		try {
 			Client c = new Client(InetAddress.getLocalHost(), 1025);
-			c.sendEcho();
-			c.compute();
+			ArrayList<Float> list = new ArrayList<>();
+			long beg = System.currentTimeMillis();
 			c.send1Moctet();
+			long end = System.currentTimeMillis();
+			list.add(((float)(end-beg))/1000f);
+			beg = System.currentTimeMillis();
+			c.send1Moctet();
+			end = System.currentTimeMillis();
+			list.add(((float)(end-beg))/1000f);
+			beg = System.currentTimeMillis();
+			c.send1Moctet();
+			end = System.currentTimeMillis();
+			list.add(((float)(end-beg))/1000f);
+			beg = System.currentTimeMillis();
+			c.send1Moctet();
+			end = System.currentTimeMillis();
+			list.add(((float)(end-beg))/1000f);
+			System.out.println(average(list));
+			
 			c.quiter();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -83,6 +82,15 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private static float average(ArrayList<Float> list) {
+		float rslt=0;
+		for(Float f : list){
+			rslt+=f;
+		}
+		return rslt/list.size();
+		
 	}
 
 }
