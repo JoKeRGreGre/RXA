@@ -3,49 +3,75 @@ package serveur_cmd;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
 
 public class Client {
 
 	public Socket s;
 	public OutputStream ops;
 	public InputStream ips;
-	public long nbOct;
 	
-	public Client(InetAddress inetAddress , int p) {
+	public Client(InetAddress inetAddress , int p) throws UnknownHostException {
 		try {
-			this.nbOct = 1000000;
 			this.s= new Socket(inetAddress,p);
 			ops = s.getOutputStream();
 			ips = s.getInputStream();
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw e;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public void send1Moctet(){
-		for(int i=0;i<nbOct;i++)
+	public void sendoctet(int tr){
+
+		for(int i=0;i<tr;i++) {
 			try {
-				ops.write("b\n".getBytes());
+				ops.write((byte)'a');
 				ops.flush();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
 	}
 	
-	private void quiter() {
+
+	private void lire(int tr) {
+		byte[] b = new byte[tr];
 		try {
-			ops.write("quit\n".getBytes());
-			ops.flush();
+			ips.read(b);
+			for(int i=0;i<tr;i++) 
+				System.out.println((char)b[i]);
+		
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.out.flush();
+	}
+	
+	private void sendEcho(int tr) {
+		PrintWriter dout = new PrintWriter(ops);
+		dout.println("/echo "+tr);
+		dout.flush();
+		sendoctet(tr);
+	}
+	
+	private void quitter() throws IOException {
+		PrintWriter dout = new PrintWriter(ops);
+		dout.println("/quit");
+		dout.flush();
+	}
+	public void close(){
+		try {
+			this.ops.close();
+			this.ips.close();
+			System.out.println("fin connexion");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -54,27 +80,14 @@ public class Client {
 	
 	public static void main(String[] args) {
 		try {
+			int nboct =3000000;
 			Client c = new Client(InetAddress.getLocalHost(), 1025);
-			ArrayList<Float> list = new ArrayList<>();
 			long beg = System.currentTimeMillis();
-			c.send1Moctet();
+			c.sendEcho(nboct);
+			c.lire(nboct);
 			long end = System.currentTimeMillis();
-			list.add(((float)(end-beg))/1000f);
-			beg = System.currentTimeMillis();
-			c.send1Moctet();
-			end = System.currentTimeMillis();
-			list.add(((float)(end-beg))/1000f);
-			beg = System.currentTimeMillis();
-			c.send1Moctet();
-			end = System.currentTimeMillis();
-			list.add(((float)(end-beg))/1000f);
-			beg = System.currentTimeMillis();
-			c.send1Moctet();
-			end = System.currentTimeMillis();
-			list.add(((float)(end-beg))/1000f);
-			System.out.println(average(list));
-			
-			c.quiter();
+			System.out.println( ((float)(end-beg))/1000f);
+			c.close();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,13 +97,5 @@ public class Client {
 		}
 	}
 
-	private static float average(ArrayList<Float> list) {
-		float rslt=0;
-		for(Float f : list){
-			rslt+=f;
-		}
-		return rslt/list.size();
-		
-	}
 
 }

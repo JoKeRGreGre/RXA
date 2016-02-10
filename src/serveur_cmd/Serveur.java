@@ -8,6 +8,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import com.sun.corba.se.impl.ior.ByteBuffer;
+
 public class Serveur {
 	private ServerSocket ss;
 	private Socket s;
@@ -46,7 +48,6 @@ public class Serveur {
 	public void sendToAll(String m, Socket s) {
 		synchronized (outputStreams) {
 			for (Socket soc : outputStreams) {
-
 				PrintWriter dout;
 				if (!soc.equals(s)) {
 					try {
@@ -65,12 +66,15 @@ public class Serveur {
 
 	public void sendToAll(String m) {
 		for (Socket soc : outputStreams) {
-
 			PrintWriter dout;
 			try {
+				soc.getOutputStream().write(m.getBytes());
+				soc.getOutputStream().flush();
+				/*
 				dout = new PrintWriter(soc.getOutputStream());
 				dout.println(m);
 				dout.flush();
+				*/
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -89,24 +93,34 @@ public class Serveur {
 		}
 	}
 
-	public void echo(int i, Socket s) {
-		int octlu = 0;
-		BufferedReader din;
-		String rslt = "";
-		while (octlu < i){
+	public void echo(int i, Socket socket) {
+		byte[] b = new byte[i];
+		System.out.println("************echo*****************");
 			try {
-				din = new BufferedReader(new InputStreamReader(
-						s.getInputStream()));
-				rslt+= (char) din.read();
-				octlu++;
+				socket.getInputStream().read(b);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		System.out.println(rslt);
-		sendToAll(rslt);
-		sendAck(s, "" + i);
+		
+		System.out.println("************echo*****************");
+		sendToSocket(b,socket);
+	}
+
+	private void sendToSocket(byte[] b,Socket socket) {
+
+			try {
+				socket.getOutputStream().write(b);
+				socket.getOutputStream().flush();
+				/*
+				dout = new PrintWriter(soc.getOutputStream());
+				dout.println(m);
+				dout.flush();
+				*/
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 
 	public void ack(int i, Socket s) {

@@ -20,12 +20,16 @@ public class ServeurThread extends Thread {
 	public void run(){
 		try {
 			BufferedReader din = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			String mess;
-			while(!socket.isClosed()){
-				mess = din.readLine();
-				System.out.println("Envoi message de "+socket+" : "+mess);
-				analyse(mess);		
-			}
+			String mess = "";
+			char t;
+			//while(!socket.isClosed()){
+				while( (t=(char)socket.getInputStream().read())!='\n'){
+					mess +=t;
+				}
+				//System.out.println("Envoi message de "+socket+" : "+mess);
+				analyse(mess);
+				mess="";
+			//}
 			
 			
 		} catch (IOException e) {
