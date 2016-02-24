@@ -93,11 +93,36 @@ public class Serveur {
 		}
 	}
 
-	public void echo(int i, Socket socket) {
-		byte[] b = new byte[i];
+
+	public void echo(long nbOct, int tailleBloc, Socket socket) {
+		System.out.println("************echo Bloc*****************");
+		long nbTours = nbOct/tailleBloc;
+		byte[] b = new byte[tailleBloc];
+		for(long j =0 ;j<nbTours;j++){
+				try {
+					socket.getInputStream().read(b);
+					/*
+					for(int i=0;i<tailleBloc;i++) 
+						System.out.println((char)b[i]);
+					*/	
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				System.out.println("NBTOUR="+j + " == NBTOUR="+nbOct/tailleBloc);
+				sendToSocket(b,socket);
+		}
+		
+		System.out.println("************echo Bloc*****************");
+	}
+	
+	public void echo(int nbOct, Socket socket) {
+		byte[] b = new byte[nbOct];
 		System.out.println("************echo*****************");
 			try {
-				socket.getInputStream().read(b);
+				for(int i=0;i<nbOct;i++)
+					b[i]=(byte) socket.getInputStream().read();
+				//socket.getInputStream().read(nbOct);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -165,4 +190,5 @@ public class Serveur {
 			rslt = i1-i2;
 		sendAck(socket, ""+rslt);
 	}
+
 }
