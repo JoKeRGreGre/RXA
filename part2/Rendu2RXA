@@ -1,0 +1,109 @@
+ 
+-> Ctrl+A P pour afficher les parametres de communications de minicom
+
+                     +---[Paramètres de communication]----+
+                      |                                    |
+                      |     Actuellement :  9600 8N1       |
+                      | Speed            Parity      Data  |
+                      | A: <next>        L: None     S: 5  |
+                      | B: <prev>        M: Even     T: 6  |
+                      | C:   9600        N: Odd      U: 7  |
+                      | D:  38400        O: Mark     V: 8  |
+                      | E: 115200        P: Space          |
+                      |                                    |
+                      | Stopbits                           |
+                      | W: 1             Q: 8-N-1          |
+                      | X: 2             R: 7-E-1          |
+                      |                                    |
+                      |                                    |
+                      | Choix, ou <Entrée> pour sortir ?   |
+                      +------------------------------------+
+
+
+
+-> show running-config et show startup-config on a besoin d'etre juste dans le mode privilegie
+
+
+
+
+-> L'os correspond au fichier c2950-i6q4l2-mz.121-22.EA2.bin
+
+Directory of flash:/
+
+    2  -rwx         109  Mar 01 1993 00:07:11 +00:00  info
+    3  -rwx         270  Jan 01 1970 00:01:38 +00:00  env_vars
+    4  -rwx        1376  Mar 01 1993 00:09:00 +00:00  config.text
+    7  -rwx     3086328  Mar 01 1993 00:08:51 +00:00  c2950-i6q4l2-mz.121-22.EA2.bin
+    8  drwx        3968  Mar 01 1993 00:09:24 +00:00  html
+  341  -rwx         109  Mar 01 1993 00:09:53 +00:00  info.ver
+  345  -rwx        1376  Mar 01 1993 00:17:33 +00:00  startup-config.bak
+
+7741440 bytes total (3170304 bytes free)
+
+-> Pour configurer l'interface du switch on entre en mode de configuration des interfaces :
+
+SJ1(config)#interface Vlan 1
+SJ1(config-if)#ip address 10.1.1.1 255.255.255.0
+SJ1(config-if)#no shutdown
+
+
+-> Ajouter un mot de passe et activer les liaisons series virtuelles
+
+2960-RG(config)#enable secret M02p@55
+2960-RG(config)#line con 0
+2960-RG(config-line)#password P@55w0rd
+2960-RG(config-line)#login
+2960-RG(config-line)#exit
+2960-RG(config)#line vty 0 15
+2960-RG(config-line)#password P@55w0rd
+2960-RG(config-line)#login
+2960-RG(config-line)#end
+
+-> Recuperer l'interface du fichier Vlan1 pour obtenir seulement son adresse ip
+
+SJ1#sh run int vlan1   
+Building configuration...
+
+Current configuration : 58 bytes
+!
+interface Vlan1
+ ip address 10.1.1.1 255.255.255.0
+end
+
+-> la commande sudo mii-tool permet de voir les connexions sur les interfaces 
+
+SIOCGMIIREG on eth0 failed: Input/output error
+SIOCGMIIREG on eth0 failed: Input/output error
+eth0: negotiated 100baseTx-FD, link ok
+eth1: negotiated 100baseTx-FD, link ok
+
+
+-> configurer l'eth1 avec une ip du meme groupe que celle du switch configuré précedemment
+sudo ifconfig eth1 10.1.1.2 netmask 255.255.255.0
+
+-> ... pour obtenir :
+
+eth1      Link encap:Ethernet  HWaddr 30:b5:c2:05:34:56  
+          inet adr:10.1.1.2  Bcast:10.1.1.255  Masque:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 lg file transmission:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+-> essayer la connection telnet
+
+Trying 10.1.1.1...
+Connected to 10.1.1.1.
+Escape character is '^]'.
+
+
+User Access Verification
+
+Password: 
+SJ1>
+
+
+
+
+
