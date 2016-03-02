@@ -120,8 +120,8 @@ public class Client {
 	
 	public static void main(String[] args) {
 		try {
-			int nboctet =25000;
-			int tailleBloc = 2;
+			int nboctet =100000000;
+			int tailleBloc = 100;
 			Client c = new Client(InetAddress.getLocalHost(), 1025);
 			
 			//System.out.println("***********Envoi octet par octet*************");

@@ -1,0 +1,10 @@
+Vous trouverez dans le dossier src (utilisé sous eclipse)
+	- Paquage selector
+	- Paquages serveur_cmd
+
+les selectors fonctionnent (paquage selector) mais j'ai implementé les commandes dans le paquage serveur_cmd
+
+Le serveur est multithreadé.
+Les commandes ack et echo et compute fonctionnent avec un client telnet (en byte par byte).
+Pour tester l'envoi d'1 milions d'octets il faut utiliser lancer un client (client.java)
+il affichera une moyenne sur le temps d'envoi d'1 milions d'octet (moyenne sur 5 envois)

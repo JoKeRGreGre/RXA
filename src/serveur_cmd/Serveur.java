@@ -8,8 +8,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import com.sun.corba.se.impl.ior.ByteBuffer;
-
 public class Serveur {
 	private ServerSocket ss;
 	private Socket s;
@@ -95,7 +93,6 @@ public class Serveur {
 
 
 	public void echo(long nbOct, int tailleBloc, Socket socket) {
-		System.out.println("************echo Bloc*****************");
 		long nbTours = nbOct/tailleBloc;
 		byte[] b = new byte[tailleBloc];
 		for(long j =0 ;j<nbTours;j++){
@@ -113,7 +110,6 @@ public class Serveur {
 				sendToSocket(b,socket);
 		}
 		
-		System.out.println("************echo Bloc*****************");
 	}
 	
 	public void echo(int nbOct, Socket socket) {
