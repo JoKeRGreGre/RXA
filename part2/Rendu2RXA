@@ -104,6 +104,66 @@ Password:
 SJ1>
 
 
+/*--------------------------------------------------------------------------------------------------*/
 
 
+
+1) Losqu'on debranche un machine du switch elle disparait de la table d'acheminement
+
+SJ2#show mac-address-table 
+Dynamic Address Count:                 2
+Secure Address Count:                  0
+Static Address (User-defined) Count:   0
+System Self Address Count:             39
+Total MAC addresses:                   41
+Maximum MAC addresses:                 8192
+Non-static Address Table:
+Destination Address  Address Type  VLAN  Destination Port
+-------------------  ------------  ----  --------------------
+30b5.c205.0d7f       Dynamic          1  FastEthernet0/3
+30b5.c205.3456       Dynamic          1  FastEthernet0/1
+
+
+-> il faut faire un ping depuis cette machine pour reactualiser la table :
+
+SJ2#show mac-address-table 
+Dynamic Address Count:                 3
+Secure Address Count:                  0
+Static Address (User-defined) Count:   0
+System Self Address Count:             39
+Total MAC addresses:                   42
+Maximum MAC addresses:                 8192
+Non-static Address Table:
+Destination Address  Address Type  VLAN  Destination Port
+-------------------  ------------  ----  --------------------
+30b5.c204.faf3       Dynamic          1  FastEthernet0/5
+30b5.c205.0d7f       Dynamic          1  FastEthernet0/3
+30b5.c205.3456       Dynamic          1  FastEthernet0/1
+
+
+-> Probleme : Lorsqu'on ping une machine qui n'est plus dans la table de routage le ping fonctionne quand meme.
+
+
+
+2) 
+
+moyart@b05p3:~$ sudo arp -s 10.1.1.5 12:34:56:78:9A:BC
+moyart@b05p3:~$ ping 10.1.1.5
+
+-> le commutateur envoie le ping en broadcast
+
+3)
+
+SJ2(config)#mac-address-table aging-time 10
+-> après 10 sec la table est bien vide.
+
+-> il y a seulement 1 icmp Echo (ping) reply
+
+-> si on a un aging time trop court le switch doit envoyer souvent des pings en broadcast pour réactualiser sa table
+
+-> Si on a beaucoup d'addresse mac sur le switch il faut actualiser souvent la table pour liberer la place : Maximum MAC addresses:                 8192
+
+-> changer l 'adresse mac : sudo ifconfig eth1 hw ether 30:b5:c2:05:34:56
+
+-> on peut pas interconnecter les 2 switchs
 
