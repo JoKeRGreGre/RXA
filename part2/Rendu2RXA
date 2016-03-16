@@ -106,7 +106,7 @@ SJ1>
 
 /*--------------------------------------------------------------------------------------------------*/
 
-
+Commutation :
 
 1) Losqu'on debranche un machine du switch elle disparait de la table d'acheminement
 
@@ -166,4 +166,51 @@ SJ2(config)#mac-address-table aging-time 10
 -> changer l 'adresse mac : sudo ifconfig eth1 hw ether 30:b5:c2:05:34:56
 
 -> on peut pas interconnecter les 2 switchs
+
+
+Securisation des ports :
+
+
+1)on utilise la commande port security max-mac-count 2 pour  limiter le nombre d'addresse mac a 2 par port.
+
+-> lorsqu'on ping sur le meme port avec 2 machine différentes, les ping repondent, si on branche une 3e machine sur ce port le ping ne répond pas. Car le switch attribue les 2 premieres adresses mac.
+
+	
+
+
+Boucle de commutation :
+
+1) utliser :
+	- cable croisé pour connecter 2 switch ensemble
+	- no spanning tree dans minicom
+
+-> le ping est recu en boucle car lors de l'envoi en broadcast repete le ping en boucle.
+
+-> Les deux switchs ne repondent plus.
+
+2) Avec l'addresse fictive on obtient un autre boucle infinie de ping.
+
+-> 
+
+3) /Statistics/Summury -> avg packet/sec	6761.659
+Bloquer 1 port avec la commande : port storm-control broadcast threshold rising 10 falling 0,
+ne suffit pas a arreter le ping en boucle
+
+-> il faut bloquer au moin 2 port pour empecher la boucle infinie.
+
+-> 
+
+Bridge Linux :
+
+-> sudo brctl addbr jetjones
+
+-> brctl show
+
+-> sudo brctl addif jetjones eth1
+   sudo brctl addif jetjones eth0	
+
+-> ifconfig jetjones up
+
+-> ifconfig jetjones 192.168.100.5 netmask 255.255.255.0 up
+
 
