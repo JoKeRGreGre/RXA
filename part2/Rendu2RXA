@@ -214,3 +214,20 @@ Bridge Linux :
 -> ifconfig jetjones 192.168.100.5 netmask 255.255.255.0 up
 
 
+
+
+VLAN :
+
+1) 
+-> Les poste sur le même vlan peuvent se joindre mutuellement.
+
+-> personne ne recoit le ping en broadcast
+
+2) pour faire des groupes sur le meme reseaux
+
+
+3) on interconnecte les 2 switches avec des cables croisés en faisant les parametrages necessaire pour eviter les boucles de commutation
+
+
+Trunk :
+
