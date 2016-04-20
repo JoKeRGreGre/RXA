@@ -118,9 +118,9 @@ public class Client {
 		}
 	}
 	
+	static int nboctet =60000;
 	public static void main(String[] args) {
 		try {
-			int nboctet =100000000;
 			int tailleBloc = 100;
 			Client c = new Client(InetAddress.getLocalHost(), 1025);
 			
@@ -166,7 +166,9 @@ public class Client {
 		}
 
 		long end = System.currentTimeMillis();
-		System.out.println( ((float)(end-beg))/1000f);
+		float time = ((float)(end-beg))/1000f;
+		System.out.println("Time : "+time+" sec");
+		System.out.println("Debit : "+(nboctet/time)*(1/1024)+" Ko/sec");
 	}
 
 	public static void sendOctParOctAndclose(Client c,int nboct){
@@ -182,7 +184,9 @@ public class Client {
 			}
 		}
 		long end = System.currentTimeMillis();
-		System.out.println( ((float)(end-beg))/1000f);
+		float time = ((float)(end-beg))/1000f;
+		System.out.println("Time : "+time+" sec");
+		System.out.println("Debit : "+(nboctet/time)*(1/1024)+" Ko/sec");
 	}
 	
 	public static void sendOctParOct(Client c,int nboct){
@@ -190,7 +194,9 @@ public class Client {
 		c.sendEcho(nboct);
 		c.lire(nboct);
 		long end = System.currentTimeMillis();
-		System.out.println( ((float)(end-beg))/1000f);
+		float time = ((float)(end-beg))/1000f;
+		System.out.println("Time : "+time+" sec");
+		System.out.println("Debit : "+(nboctet/time)*(1/1024)+" Ko/sec");
 	}
 	
 	public static void sendOctParBloc(Client c,long nboct,int tailleBloc){
@@ -198,7 +204,9 @@ public class Client {
 		c.sendBlocEcho(nboct,tailleBloc);
 		c.lire(nboct,tailleBloc);
 		long end = System.currentTimeMillis();
-		System.out.println( ((float)(end-beg))/1000f);
+		float time = ((float)(end-beg))/1000f;
+		System.out.println("Time : "+time+" sec");
+		System.out.println("Debit : "+(nboctet/time)*(1/1024)+" Ko/sec");
 	}
 	
 

@@ -187,4 +187,10 @@ public class Serveur {
 		sendAck(socket, ""+rslt);
 	}
 
+	public static void main(String[] args) {
+		
+		int port = 1025;
+		new Serveur(port);
+	}
+	
 }

@@ -54,8 +54,8 @@ public class ServeurThread extends Thread {
 			serveur.ack(Integer.parseInt(buffer[1]),socket);
 		else if(buffer[0].equals("/compute")&&buffer.length==4)
 			serveur.compute(Integer.parseInt(buffer[1]),buffer[2],Integer.parseInt(buffer[3]),socket);
-		else
-			serveur.sendToAll(mess,socket);
+		/*else
+			serveur.sendToAll(mess,socket);*/
 	}
 	
 }
