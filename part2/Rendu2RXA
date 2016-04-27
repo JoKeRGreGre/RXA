@@ -175,7 +175,10 @@ Securisation des ports :
 
 -> lorsqu'on ping sur le meme port avec 2 machine différentes, les ping repondent, si on branche une 3e machine sur ce port le ping ne répond pas. Car le switch attribue les 2 premieres adresses mac.
 
-	
+2)
+
+
+3)	
 
 
 Boucle de commutation :
@@ -230,4 +233,48 @@ VLAN :
 
 
 Trunk :
+
+1)
+
+Ajouter un nouveau vlan
+SR2#vlan database 
+SR2(vlan)#vlan 2 name compta
+SR2(vlan)#vlan 2 mtu 1500
+SR2(vlan)#exit
+SR2#show vlan
+
+
+
+-> associer un port au vlan
+SR2#configure terminal 
+SR2(config)#interface FastEthernet 0/1
+SR2(config-if)#switchport mode trunk 
+SR2(config-if)#switchport trunk native vlan 2
+SR2(config-if)#switchport trunk encapsulation dot1q 
+SR2(config-if)#end
+
+-> SR2#show interfaces FastEthernet 0/1 switchport 
+Name: Fa0/1
+Switchport: Enabled
+Administrative mode: trunk
+Operational Mode: trunk
+Administrative Trunking Encapsulation: isl
+Operational Trunking Encapsulation: isl
+Negotiation of Trunking: Disabled
+Access Mode VLAN: 0 ((Inactive))
+Trunking Native Mode VLAN: 2 (compta)
+Trunking VLANs Enabled: ALL
+Trunking VLANs Active: 1,2,99
+Pruning VLANs Enabled: 2-1001
+
+Priority for untagged frames: 0
+Override vlan tag priority: FALSE
+Voice VLAN: none
+Appliance trust: none
+Self Loopback: No
+
+
+
+
+
 
