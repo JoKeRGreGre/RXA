@@ -175,10 +175,21 @@ Securisation des ports :
 
 -> lorsqu'on ping sur le meme port avec 2 machine différentes, les ping repondent, si on branche une 3e machine sur ce port le ping ne répond pas. Car le switch attribue les 2 premieres adresses mac.
 
-2)
+
+2) 
 
 
-3)	
+3)
+-> B ne communique pas avec A car l'adresse MAC enregistrer est celle de C.
+-> de nouveau le ping fonctionne car S2 connait l'adresse MAC de C
+
+
+4) On utilise la commande switchport port-security violation protect
+
+
+
+5) On peut securiser une serie de ports avec la commande interface range fastEthernet 0/1 , fastEthernet 0/x
+
 
 
 Boucle de commutation :
@@ -193,7 +204,6 @@ Boucle de commutation :
 
 2) Avec l'addresse fictive on obtient un autre boucle infinie de ping.
 
--> 
 
 3) /Statistics/Summury -> avg packet/sec	6761.659
 Bloquer 1 port avec la commande : port storm-control broadcast threshold rising 10 falling 0,
@@ -201,7 +211,7 @@ ne suffit pas a arreter le ping en boucle
 
 -> il faut bloquer au moin 2 port pour empecher la boucle infinie.
 
--> 
+
 
 Bridge Linux :
 
@@ -217,6 +227,64 @@ Bridge Linux :
 -> ifconfig jetjones 192.168.100.5 netmask 255.255.255.0 up
 
 
+
+Arbre recouvrant :
+
+1) brctl stp <bridge> on
+Ceci a permis d'éviter le flood sur le réseau
+brctl showstp <bridge>
+=> Changement du state d'un des ports en "Blocking" au lieu de "forwarding" pour éviter le spam
+
+
+2)Une fois débranché, le forwarding se fait sur les deux ports et non plus sur un seul
+
+
+3) Paquet CDP mais sinon rien d'autre .. (venant de SJ3)
+
+
+4) Les BPDU envoyés de A sont reçues par B au début mais, après éléction du Noeud racine. Le root ne retransmet plus d'autres BPDU
+
+
+
+5)Le champ "Root Identifier" vient de l'emetteur
+Ensuite il y a election entre les deux candidats au root grâce au Root Path Cost et Bridge Identifier
+
+
+
+6) Le S2 est devenu root car l'adresse MAC est la plus petite parmi les autres
+Les ports qui ne sont ni racine, ni désignés sont bloqués. Un port bloqué peut recevoir des paquets BPDU mais ne peut pas en émettre.
+La boucle est coupée S1 et B, le port de B est désactivé "Blocking" grâce au protocole stp
+Pour déterminer le "Port désigné", les switch vont comparer le RootPathCost des BPDU envoyés/reçus. Si les RPC sont identiques, on compare les port ids
+
+Sur les ponts non root, on choisit le port racine avec le RootPathCost le plus petit ainsi qu'avec le Bridge Identifier
+On obtient le chemin le plus court depuis la racine vers un noeud. 
+
+
+7) Si l'election du bridge est celui le plus éloigné on a des pertes de performances
+
+
+8) speed 10 pour forcer en 10Mbit/s, les coups augmentent sauf sur le port de A où il est resté stable.
+
+
+9)
+
+
+10)
+
+
+11)
+
+-------------------------------------------------
+
+Partionnement des echanges
+
+Ports Protégés : 
+
+1) les trafics de trames entres les ports protégés ne se fait pas. A n'envoi pas de trames vers B.
+Les ports protégés permettent dond d'isoler les machines.
+
+
+2) le trafic se fait sur un autre switch, on peut donc communiquer avec d'autre ports protégé sur des switch différents
 
 
 VLAN :
@@ -236,7 +304,7 @@ Trunk :
 
 1)
 
-Ajouter un nouveau vlan
+Ajouter des nouveau vlan
 SR2#vlan database 
 SR2(vlan)#vlan 2 name compta
 SR2(vlan)#vlan 2 mtu 1500
@@ -245,7 +313,7 @@ SR2#show vlan
 
 
 
--> associer un port au vlan
+-> associer un port au vlan correspondant pour séparer les reseaux de compta, SAV et services commercial
 SR2#configure terminal 
 SR2(config)#interface FastEthernet 0/1
 SR2(config-if)#switchport mode trunk 
@@ -273,6 +341,73 @@ Voice VLAN: none
 Appliance trust: none
 Self Loopback: No
 
+
+2) A recoit les paquets de B, et C recoit les paquets de D
+
+
+3) VLan : 12 bit donc les vlan vont de 1 a 4096
+
+
+4) Sur les extemité ont ne peut avoir soit que du ISL soit que du 802.1Q 
+
+
+5)
+SR2(vlan)#vlan 2 name NATIF
+les paquets non taggé sont redirigé automatiquement vers le NATIF
+
+
+6) Il n'y a plus de vlan 3 sur le S2 donc les trames ne sont pas transmises sur le trunk
+
+
+7)
+-> DTP est un mode dynamic, il permet donc de desactiver/activer le mode trunk quand on en a besoin.
+-> Un utilisateur malveillant pourrait utiliser le mode DTP pour modifier les vlan et la topographie du réseau.
+
+
+
+9 Surveillance de port :
+
+
+10 VTP :
+
+1)
+-> Vlan 3 n'est pas configuré
+-> Les paquets VTP transportent les mises a jours des vlan sur le reseau.
+-> il faut creer le vlan sur le serveur et envoyer la mise a jour VTP sur le reseaux
+
+2) La mise a jour de S2 change la base de données des vlan sur les switch S1, on peut donc inondé le réseaux avec des faux vlan en se connectant sur un switch en mode VTP serveur
+
+
+3) utiliser la commande  :switchport trunk pruning pour assurer la transmistio du vlan par vtp
+
+
+
+4) Avec le protocole VTP il faut utiliser les memes modeles de switchs (cad que des switch cisco par exemples)
+
+
+Routage inter-vlan :
+
+
+Trunk et serveur :
+
+1) oui
+
+
+3)
+-> switchport trunk allowed 2
+
+
+4)
+-> en mode transparents le poste recoit les mises a jours du switch 2
+-> en mode transparents les mises a jours sont prisent en comptes sur S2
+
+
+Agregation de liens :
+
+1)
+
+
+2)
 
 
 
